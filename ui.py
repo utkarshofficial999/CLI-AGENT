@@ -3,13 +3,23 @@ Terminal UI Module using Rich library.
 Provides colored prompts, Markdown rendering, streaming response display, and banners.
 """
 
+import sys
 from typing import Generator, List, Dict, Any
 from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
 from rich.table import Table
 from rich.text import Text
-from rich.style import Style
+
+# Ensure UTF-8 output encoding on Windows terminals to support emojis smoothly
+if sys.platform == "win32":
+    try:
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 console = Console()
 
