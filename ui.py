@@ -27,7 +27,7 @@ console = Console()
 def print_welcome_banner(provider_name: str, model_name: str) -> None:
     """Displays startup welcome banner with active configuration details."""
     banner_text = Text()
-    banner_text.append("🤖 AI CLI Assistant", style="bold cyan")
+    banner_text.append("🤖 JARVIS AI CLI Assistant", style="bold cyan")
     banner_text.append("\nYour Personal Terminal-based Generative AI Companion\n", style="dim white")
     banner_text.append(f"\nProvider: ", style="bold green")
     banner_text.append(f"{provider_name.upper()}", style="yellow")
