@@ -31,7 +31,7 @@ The **AI CLI Agent** is a terminal-native application designed to explore how mo
 
 - ⚡ **Real-Time Streaming**: Tokens stream directly to stdout as they arrive from the LLM provider for zero perceived latency.
 - 🧠 **Context & History Management**: Maintains in-memory session history and automatically persists conversations to `.chat_history.json`.
-- 🤖 **Multi-Provider Architecture**: Standardized client layer supporting **Google Gemini** (`gemini-2.5-flash`) and **OpenAI** (`gpt-4o-mini`).
+- 🤖 **Multi-Provider Architecture**: Standardized client layer supporting **Groq** (`groq/compound-mini`), **Google Gemini** (`gemini-2.5-flash`), and **OpenAI** (`gpt-4o-mini`).
 - 🎨 **Rich Terminal Formatting**: Uses the `rich` library for colorful banners, Markdown rendering, and status logs.
 - 🛠️ **Slash Commands**:
   - `/help`: Display all available slash commands.

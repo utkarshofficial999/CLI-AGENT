@@ -10,6 +10,15 @@ from llm_client import create_llm_client, BaseLLMClient
 import ui
 
 
+def get_active_model_name(provider: str) -> str:
+    """Returns the model name string for the active provider."""
+    if provider == "groq":
+        return config.GROQ_MODEL
+    elif provider == "gemini":
+        return config.GEMINI_MODEL
+    return config.OPENAI_MODEL
+
+
 def handle_slash_command(
     command: str,
     history: HistoryManager,
@@ -54,7 +63,7 @@ def handle_slash_command(
 
     elif cmd_lower == "/model":
         provider = config.get_active_provider()
-        model_name = config.GEMINI_MODEL if provider == "gemini" else config.OPENAI_MODEL
+        model_name = get_active_model_name(provider)
         ui.print_info(f"Active Provider: {provider.upper()} | Model: {model_name}")
         return True
 
@@ -78,13 +87,13 @@ def main():
     try:
         client = create_llm_client()
         active_provider = config.get_active_provider()
-        active_model = config.GEMINI_MODEL if active_provider == "gemini" else config.OPENAI_MODEL
+        active_model = get_active_model_name(active_provider)
     except ValueError as err:
         ui.print_error(str(err))
         ui.print_info(
             "Quick Setup:\n"
             "1. Copy '.env.example' to '.env'\n"
-            "2. Open '.env' and set your GEMINI_API_KEY (or OPENAI_API_KEY)\n"
+            "2. Open '.env' and set your GROQ_API_KEY (or GEMINI_API_KEY / OPENAI_API_KEY)\n"
             "3. Run 'python main.py' again!"
         )
         sys.exit(1)

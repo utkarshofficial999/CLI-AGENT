@@ -14,11 +14,13 @@ BASE_DIR = Path(__file__).parent.resolve()
 load_dotenv(dotenv_path=BASE_DIR / ".env")
 
 # API Keys
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 
 # Default Settings
 DEFAULT_PROVIDER = os.getenv("DEFAULT_PROVIDER", "auto").strip().lower()
+GROQ_MODEL = os.getenv("GROQ_MODEL", "groq/compound-mini").strip()
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip()
 
@@ -34,11 +36,13 @@ def get_active_provider() -> str:
     """
     Determines the active provider based on configuration and available API keys.
     """
-    if DEFAULT_PROVIDER in ("gemini", "openai"):
+    if DEFAULT_PROVIDER in ("groq", "gemini", "openai"):
         return DEFAULT_PROVIDER
 
-    # Auto-detection: prioritize Gemini, then OpenAI
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
+    # Auto-detection priority: Groq -> Gemini -> OpenAI
+    if GROQ_API_KEY and GROQ_API_KEY != "your_groq_api_key_here":
+        return "groq"
+    elif GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here":
         return "gemini"
     elif OPENAI_API_KEY and OPENAI_API_KEY != "your_openai_api_key_here":
         return "openai"

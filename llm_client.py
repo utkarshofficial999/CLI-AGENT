@@ -1,5 +1,5 @@
 """
-Unified LLM Client supporting Google Gemini and OpenAI with real-time streaming.
+Unified LLM Client supporting Groq, Google Gemini, and OpenAI with real-time streaming.
 """
 
 from abc import ABC, abstractmethod
@@ -15,6 +15,34 @@ class BaseLLMClient(ABC):
     def stream_response(self, history: HistoryManager) -> Generator[str, None, None]:
         """Streams response tokens yield by yield from the active LLM provider."""
         pass
+
+
+class GroqClient(BaseLLMClient):
+    """Groq High-Speed LLM Provider Client using the official groq SDK."""
+
+    def __init__(self, api_key: str, model_name: str = config.GROQ_MODEL):
+        self.api_key = api_key
+        self.model_name = model_name
+        try:
+            from groq import Groq
+            self.client = Groq(api_key=self.api_key)
+        except Exception as e:
+            raise RuntimeError(f"Failed to initialize Groq Client: {e}")
+
+    def stream_response(self, history: HistoryManager) -> Generator[str, None, None]:
+        messages = history.to_openai_format()
+
+        try:
+            response_stream = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                stream=True
+            )
+            for chunk in response_stream:
+                if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        except Exception as e:
+            yield f"\n[API Error (Groq)]: {e}"
 
 
 class GeminiClient(BaseLLMClient):
@@ -86,7 +114,15 @@ def create_llm_client(provider: Optional[str] = None) -> BaseLLMClient:
     """
     selected_provider = provider or config.get_active_provider()
 
-    if selected_provider == "gemini":
+    if selected_provider == "groq":
+        if not config.GROQ_API_KEY or config.GROQ_API_KEY == "your_groq_api_key_here":
+            raise ValueError(
+                "GROQ_API_KEY is not set in your .env file. "
+                "Please add your key to .env or set GROQ_API_KEY environment variable."
+            )
+        return GroqClient(api_key=config.GROQ_API_KEY)
+
+    elif selected_provider == "gemini":
         if not config.GEMINI_API_KEY or config.GEMINI_API_KEY == "your_gemini_api_key_here":
             raise ValueError(
                 "GEMINI_API_KEY is not set in your .env file. "
@@ -104,5 +140,5 @@ def create_llm_client(provider: Optional[str] = None) -> BaseLLMClient:
 
     else:
         raise ValueError(
-            "No valid API key found. Please set GEMINI_API_KEY or OPENAI_API_KEY in your .env file."
+            "No valid API key found. Please set GROQ_API_KEY, GEMINI_API_KEY, or OPENAI_API_KEY in your .env file."
         )
