@@ -1,7 +1,3 @@
-"""
-Unified LLM Client supporting Groq, Google Gemini, and OpenAI with real-time streaming.
-"""
-
 from abc import ABC, abstractmethod
 from typing import Generator, Optional
 import config
@@ -9,16 +5,13 @@ from history_manager import HistoryManager
 
 
 class BaseLLMClient(ABC):
-    """Abstract Base Class for LLM Client implementations."""
 
     @abstractmethod
     def stream_response(self, history: HistoryManager) -> Generator[str, None, None]:
-        """Streams response tokens yield by yield from the active LLM provider."""
         pass
 
 
 class GroqClient(BaseLLMClient):
-    """Groq High-Speed LLM Provider Client using the official groq SDK."""
 
     def __init__(self, api_key: str, model_name: str = config.GROQ_MODEL):
         self.api_key = api_key
@@ -46,7 +39,6 @@ class GroqClient(BaseLLMClient):
 
 
 class GeminiClient(BaseLLMClient):
-    """Google Gemini LLM Provider Client using the official google-genai SDK."""
 
     def __init__(self, api_key: str, model_name: str = config.GEMINI_MODEL):
         self.api_key = api_key
@@ -62,7 +54,7 @@ class GeminiClient(BaseLLMClient):
 
         contents = history.to_gemini_format()
         sys_instruction = history.system_prompt if history.system_prompt else None
-        
+
         req_config = types.GenerateContentConfig(
             system_instruction=sys_instruction
         ) if sys_instruction else None
@@ -81,7 +73,6 @@ class GeminiClient(BaseLLMClient):
 
 
 class OpenAIClient(BaseLLMClient):
-    """OpenAI LLM Provider Client using the official openai SDK."""
 
     def __init__(self, api_key: str, model_name: str = config.OPENAI_MODEL):
         self.api_key = api_key
@@ -109,9 +100,6 @@ class OpenAIClient(BaseLLMClient):
 
 
 def create_llm_client(provider: Optional[str] = None) -> BaseLLMClient:
-    """
-    Factory function to create an LLM client based on requested or auto-detected provider.
-    """
     selected_provider = provider or config.get_active_provider()
 
     if selected_provider == "groq":

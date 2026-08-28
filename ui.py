@@ -1,8 +1,3 @@
-"""
-Terminal UI Module using Rich library.
-Provides colored prompts, Markdown rendering, streaming response display, and banners.
-"""
-
 import sys
 from typing import Generator, List, Dict, Any
 from rich.console import Console
@@ -11,7 +6,6 @@ from rich.markdown import Markdown
 from rich.table import Table
 from rich.text import Text
 
-# Ensure UTF-8 output encoding on Windows terminals to support emojis smoothly
 if sys.platform == "win32":
     try:
         if hasattr(sys.stdout, "reconfigure"):
@@ -25,7 +19,6 @@ console = Console()
 
 
 def print_welcome_banner(provider_name: str, model_name: str) -> None:
-    """Displays startup welcome banner with active configuration details."""
     banner_text = Text()
     banner_text.append("🤖 JARVIS AI CLI Assistant", style="bold cyan")
     banner_text.append("\nYour Personal Terminal-based Generative AI Companion\n", style="dim white")
@@ -43,7 +36,6 @@ def print_welcome_banner(provider_name: str, model_name: str) -> None:
 
 
 def print_help_menu() -> None:
-    """Displays styled table of available slash commands."""
     table = Table(title="Available Slash Commands", border_style="cyan", title_style="bold cyan")
     table.add_column("Command", style="bold magenta", no_wrap=True)
     table.add_column("Description", style="white")
@@ -59,7 +51,6 @@ def print_help_menu() -> None:
 
 
 def get_user_input() -> str:
-    """Prompts user for input with styled prompt."""
     try:
         console.print("\n[bold cyan]You >[/bold cyan] ", end="")
         user_input = input().strip()
@@ -69,18 +60,14 @@ def get_user_input() -> str:
 
 
 def render_streaming_response(stream_generator: Generator[str, None, None]) -> str:
-    """
-    Streams tokens in real time to standard output, then renders the full text as Markdown.
-    Returns the accumulated text string.
-    """
     console.print("\n[bold green]AI >[/bold green] ", end="")
-    
+
     full_response = ""
     try:
         for chunk in stream_generator:
             console.print(chunk, end="", highlight=False)
             full_response += chunk
-        console.print()  # Newline after stream finishes
+        console.print()
     except Exception as e:
         console.print(f"\n[bold red][Streaming Error]: {e}[/bold red]")
 
@@ -88,9 +75,8 @@ def render_streaming_response(stream_generator: Generator[str, None, None]) -> s
 
 
 def print_history_summary(messages: List[Dict[str, Any]], system_prompt: str) -> None:
-    """Displays current session context history."""
     console.print(Panel("[bold cyan]Conversation Session History[/bold cyan]", border_style="cyan"))
-    
+
     if system_prompt:
         console.print(f"[bold yellow]System Prompt:[/bold yellow] {system_prompt}\n")
 
@@ -106,20 +92,16 @@ def print_history_summary(messages: List[Dict[str, Any]], system_prompt: str) ->
 
 
 def print_info(message: str) -> None:
-    """Displays info message."""
     console.print(f"[bold blue]ℹ {message}[/bold blue]")
 
 
 def print_success(message: str) -> None:
-    """Displays success message."""
     console.print(f"[bold green]✔ {message}[/bold green]")
 
 
 def print_warning(message: str) -> None:
-    """Displays warning message."""
     console.print(f"[bold yellow]⚠ {message}[/bold yellow]")
 
 
 def print_error(message: str) -> None:
-    """Displays error message."""
     console.print(f"[bold red]✖ {message}[/bold red]")

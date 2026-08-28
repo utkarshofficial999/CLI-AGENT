@@ -1,8 +1,3 @@
-"""
-Main Entry Point & REPL Engine for AI CLI Assistant.
-Handles user input loop, slash commands, conversation state, streaming responses, and graceful exit.
-"""
-
 import sys
 import config
 from history_manager import HistoryManager
@@ -11,7 +6,6 @@ import ui
 
 
 def get_active_model_name(provider: str) -> str:
-    """Returns the model name string for the active provider."""
     if provider == "groq":
         return config.GROQ_MODEL
     elif provider == "gemini":
@@ -24,10 +18,6 @@ def handle_slash_command(
     history: HistoryManager,
     client: BaseLLMClient
 ) -> bool:
-    """
-    Handles slash commands. Returns True if command was handled, False if regular query.
-    If command is /exit or /quit, terminates the application loop.
-    """
     cmd_lower = command.lower().strip()
 
     if cmd_lower in ("/exit", "/quit"):
@@ -75,15 +65,12 @@ def handle_slash_command(
 
 
 def main():
-    """Main application loop."""
-    # 1. Initialize History Manager
     history = HistoryManager(
         storage_path=config.HISTORY_FILE,
         system_prompt=config.DEFAULT_SYSTEM_PROMPT
     )
     history_loaded = history.load()
 
-    # 2. Initialize LLM Client
     try:
         client = create_llm_client()
         active_provider = config.get_active_provider()
@@ -101,12 +88,10 @@ def main():
         ui.print_error(f"Unexpected error initializing LLM client: {err}")
         sys.exit(1)
 
-    # 3. Print Welcome Banner
     ui.print_welcome_banner(provider_name=active_provider, model_name=active_model)
     if history_loaded and history.get_messages():
         ui.print_info(f"Restored previous session ({len(history.get_messages())} messages loaded).")
 
-    # 4. Interactive REPL Loop
     while True:
         try:
             user_input = ui.get_user_input()
@@ -114,20 +99,15 @@ def main():
             if not user_input:
                 continue
 
-            # Check if input is a slash command
             if handle_slash_command(user_input, history, client):
                 continue
 
-            # Add User input to conversation history
             history.add_user_message(user_input)
 
-            # Get Streaming generator response from LLM provider
             stream_gen = client.stream_response(history)
 
-            # Render live response stream in terminal
             assistant_response = ui.render_streaming_response(stream_gen)
 
-            # Save assistant response to history if non-empty
             if assistant_response:
                 history.add_assistant_message(assistant_response)
                 history.save()

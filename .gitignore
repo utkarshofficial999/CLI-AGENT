@@ -1,15 +1,11 @@
-# Virtual Environment
 .venv/
 venv/
 ENV/
 
-# Secrets & Environment configuration
 .env
 
-# Session History Storage
 .chat_history.json
 
-# Python cache & bytecode
 __pycache__/
 *.py[cod]
 *$py.class
