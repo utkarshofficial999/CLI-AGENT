@@ -3,6 +3,23 @@ from typing import Generator, Optional
 import config
 from history_manager import HistoryManager
 
+try:
+    from groq import Groq
+except ImportError:
+    Groq = None
+
+try:
+    from google import genai
+    from google.genai import types
+except ImportError:
+    genai = None
+    types = None
+
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
+
 
 class BaseLLMClient(ABC):
 
@@ -14,10 +31,11 @@ class BaseLLMClient(ABC):
 class GroqClient(BaseLLMClient):
 
     def __init__(self, api_key: str, model_name: str = config.GROQ_MODEL):
+        if Groq is None:
+            raise RuntimeError("The 'groq' package is not installed. Please run: pip install groq")
         self.api_key = api_key
         self.model_name = model_name
         try:
-            from groq import Groq
             self.client = Groq(api_key=self.api_key)
         except Exception as e:
             raise RuntimeError(f"Failed to initialize Groq Client: {e}")
@@ -41,17 +59,16 @@ class GroqClient(BaseLLMClient):
 class GeminiClient(BaseLLMClient):
 
     def __init__(self, api_key: str, model_name: str = config.GEMINI_MODEL):
+        if genai is None:
+            raise RuntimeError("The 'google-genai' package is not installed. Please run: pip install google-genai")
         self.api_key = api_key
         self.model_name = model_name
         try:
-            from google import genai
             self.client = genai.Client(api_key=self.api_key)
         except Exception as e:
             raise RuntimeError(f"Failed to initialize Google GenAI Client: {e}")
 
     def stream_response(self, history: HistoryManager) -> Generator[str, None, None]:
-        from google.genai import types
-
         contents = history.to_gemini_format()
         sys_instruction = history.system_prompt if history.system_prompt else None
 
@@ -75,10 +92,11 @@ class GeminiClient(BaseLLMClient):
 class OpenAIClient(BaseLLMClient):
 
     def __init__(self, api_key: str, model_name: str = config.OPENAI_MODEL):
+        if OpenAI is None:
+            raise RuntimeError("The 'openai' package is not installed. Please run: pip install openai")
         self.api_key = api_key
         self.model_name = model_name
         try:
-            from openai import OpenAI
             self.client = OpenAI(api_key=self.api_key)
         except Exception as e:
             raise RuntimeError(f"Failed to initialize OpenAI Client: {e}")
