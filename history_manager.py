@@ -38,17 +38,19 @@ class HistoryManager:
     def get_messages(self) -> List[Dict[str, Any]]:
         return self.messages
 
-    def to_openai_format(self) -> List[Dict[str, str]]:
+    def to_openai_format(self, max_recent: int = 10) -> List[Dict[str, str]]:
         formatted = []
         if self.system_prompt:
             formatted.append({"role": "system", "content": self.system_prompt})
-        for msg in self.messages:
+        recent_messages = self.messages[-max_recent:] if max_recent > 0 else self.messages
+        for msg in recent_messages:
             formatted.append({"role": msg["role"], "content": msg["content"]})
         return formatted
 
-    def to_gemini_format(self) -> List[Dict[str, Any]]:
+    def to_gemini_format(self, max_recent: int = 10) -> List[Dict[str, Any]]:
         formatted = []
-        for msg in self.messages:
+        recent_messages = self.messages[-max_recent:] if max_recent > 0 else self.messages
+        for msg in recent_messages:
             role = "user" if msg["role"] == "user" else "model"
             formatted.append({
                 "role": role,
