@@ -22,7 +22,7 @@ def handle_slash_command(
 
     if cmd_lower in ("/exit", "/quit"):
         history.save()
-        ui.print_success("Conversation history saved. Goodbye! 👋")
+        ui.print_success("Conversation history saved. Goodbye!")
         sys.exit(0)
 
     elif cmd_lower == "/help":

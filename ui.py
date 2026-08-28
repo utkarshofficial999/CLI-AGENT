@@ -20,7 +20,7 @@ console = Console()
 
 def print_welcome_banner(provider_name: str, model_name: str) -> None:
     banner_text = Text()
-    banner_text.append("🤖 JARVIS AI CLI Assistant", style="bold cyan")
+    banner_text.append("JARVIS AI CLI Assistant", style="bold cyan")
     banner_text.append("\nYour Personal Terminal-based Generative AI Companion\n", style="dim white")
     banner_text.append(f"\nProvider: ", style="bold green")
     banner_text.append(f"{provider_name.upper()}", style="yellow")
@@ -92,16 +92,16 @@ def print_history_summary(messages: List[Dict[str, Any]], system_prompt: str) ->
 
 
 def print_info(message: str) -> None:
-    console.print(f"[bold blue]ℹ {message}[/bold blue]")
+    console.print(f"[bold blue]{message}[/bold blue]")
 
 
 def print_success(message: str) -> None:
-    console.print(f"[bold green]✔ {message}[/bold green]")
+    console.print(f"[bold green]{message}[/bold green]")
 
 
 def print_warning(message: str) -> None:
-    console.print(f"[bold yellow]⚠ {message}[/bold yellow]")
+    console.print(f"[bold yellow]{message}[/bold yellow]")
 
 
 def print_error(message: str) -> None:
-    console.print(f"[bold red]✖ {message}[/bold red]")
+    console.print(f"[bold red]{message}[/bold red]")
