@@ -117,10 +117,47 @@ class OpenAIClient(BaseLLMClient):
             yield f"\n[API Error (OpenAI)]: {e}"
 
 
+class OllamaClient(BaseLLMClient):
+
+    def __init__(self, host: str = config.OLLAMA_HOST, model_name: str = config.OLLAMA_MODEL):
+        if OpenAI is None:
+            raise RuntimeError("The 'openai' package is not installed. Please run: pip install openai")
+        self.host = host
+        self.model_name = model_name
+        base_url = f"{self.host.rstrip('/')}/v1"
+        try:
+            self.client = OpenAI(base_url=base_url, api_key="ollama")
+        except Exception as e:
+            raise RuntimeError(f"Failed to initialize Ollama Client: {e}")
+
+    def stream_response(self, history: HistoryManager) -> Generator[str, None, None]:
+        messages = history.to_openai_format()
+
+        try:
+            response_stream = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                stream=True
+            )
+            for chunk in response_stream:
+                if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        except Exception as e:
+            yield (
+                f"\n[Connection Error (Ollama)]: {e}\n"
+                f"💡 Troubleshooting:\n"
+                f"1. Make sure Ollama app is running locally on {self.host}\n"
+                f"2. Ensure you downloaded the model: open a terminal and run `ollama pull {self.model_name}`\n"
+            )
+
+
 def create_llm_client(provider: Optional[str] = None) -> BaseLLMClient:
     selected_provider = provider or config.get_active_provider()
 
-    if selected_provider == "groq":
+    if selected_provider == "ollama":
+        return OllamaClient(host=config.OLLAMA_HOST, model_name=config.OLLAMA_MODEL)
+
+    elif selected_provider == "groq":
         if not config.GROQ_API_KEY or config.GROQ_API_KEY == "your_groq_api_key_here":
             raise ValueError(
                 "GROQ_API_KEY is not set in your .env file. "
@@ -146,5 +183,6 @@ def create_llm_client(provider: Optional[str] = None) -> BaseLLMClient:
 
     else:
         raise ValueError(
-            "No valid API key found. Please set GROQ_API_KEY, GEMINI_API_KEY, or OPENAI_API_KEY in your .env file."
+            "No valid provider found. Please set DEFAULT_PROVIDER=ollama or configure API keys in your .env file."
         )
+

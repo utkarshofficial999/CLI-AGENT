@@ -13,6 +13,8 @@ DEFAULT_PROVIDER = os.getenv("DEFAULT_PROVIDER", "auto").strip().lower()
 GROQ_MODEL = os.getenv("GROQ_MODEL", "groq/compound-mini").strip()
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip()
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip()
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434").strip()
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2").strip()
 
 DEFAULT_SYSTEM_PROMPT = os.getenv(
     "DEFAULT_SYSTEM_PROMPT",
@@ -23,7 +25,7 @@ HISTORY_FILE = BASE_DIR / ".chat_history.json"
 
 
 def get_active_provider() -> str:
-    if DEFAULT_PROVIDER in ("groq", "gemini", "openai"):
+    if DEFAULT_PROVIDER in ("groq", "gemini", "openai", "ollama"):
         return DEFAULT_PROVIDER
 
     if GROQ_API_KEY and GROQ_API_KEY != "your_groq_api_key_here":
@@ -33,4 +35,5 @@ def get_active_provider() -> str:
     elif OPENAI_API_KEY and OPENAI_API_KEY != "your_openai_api_key_here":
         return "openai"
 
-    return "none"
+    return "ollama"
+

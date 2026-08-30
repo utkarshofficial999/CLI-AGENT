@@ -6,11 +6,14 @@ import ui
 
 
 def get_active_model_name(provider: str) -> str:
-    if provider == "groq":
+    if provider == "ollama":
+        return config.OLLAMA_MODEL
+    elif provider == "groq":
         return config.GROQ_MODEL
     elif provider == "gemini":
         return config.GEMINI_MODEL
     return config.OPENAI_MODEL
+
 
 
 def handle_slash_command(
